@@ -13,13 +13,13 @@
   (+ (* (find-seat rows 0 127) 8)
      (find-seat groups 0 7)))
 
-(define (find-missing-seat input)
+(define (missing-seat input)
   (cond [(null? input) input]
         [(not (= (add1 (car input)) (cadr input))) (add1 (car input))]
-        [(find-missing-seat (cdr input))]))
+        [(missing-seat (cdr input))]))
 
 ; part 1
 (apply max (map (λ (e) (seat (take e 7) (drop e 7))) input))
 
 ; part 2
-(find-missing-seat (sort (map (λ (e) (seat (take e 7) (drop e 7))) input) <))
+(missing-seat (sort (map (λ (e) (seat (take e 7) (drop e 7))) input) <))
