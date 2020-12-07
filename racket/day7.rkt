@@ -47,5 +47,6 @@
              (iter (cdr bags) (add1 result))
              (iter (cdr bags) result))]))
 
+; part1
 (iter (hash-keys all-bags) 0)
 
