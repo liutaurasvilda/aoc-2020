@@ -1,6 +1,6 @@
 #lang racket
 
-(define input (file->lines "inputs/day7.txt"))
+(define input (file->lines "inputs/test.txt"))
 
 (define all-bags (make-hash))
 
@@ -49,4 +49,3 @@
 
 ; part1
 (iter (hash-keys all-bags) 0)
-
