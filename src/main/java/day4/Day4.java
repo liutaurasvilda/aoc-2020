@@ -8,7 +8,7 @@ public class Day4 {
 
     public static void main(String[] args) {
         List<String> input = ResourceReader.readAsString("day4.txt");
-//        System.out.println(part1(input));
+        System.out.println(part1(input));
         System.out.println(part2(input));
     }
 
