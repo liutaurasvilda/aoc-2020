@@ -16,9 +16,12 @@
 
 (define (instr2 input i)
   (cadr (list-ref input i)))
-  
+
 (define (calc input i acc exec)
   (cond [(seen exec i) acc]
-        [(equal? (instr input i) "acc") (calc input (add1 i) ((eval (sign (instr2 input i))) acc (value (instr2 input i))) (set-add exec i))]
-        [(equal? (instr input i) "jmp") (calc input ((eval (sign (instr2 input i))) i (value (instr2 input i))) acc (set-add exec i))]
+        [(equal? (instr input i) "acc") (calc input (add1 i) ((eval (sign (instr2 input i)) (make-base-namespace)) acc (value (instr2 input i))) (set-add exec i))]
+        [(equal? (instr input i) "jmp") (calc input ((eval (sign (instr2 input i)) (make-base-namespace)) i (value (instr2 input i))) acc (set-add exec i))]
         [(equal? (instr input i) "nop") (calc input (add1 i) acc (set-add exec i))]))
+
+; part1
+(calc input 0 0 (set))
