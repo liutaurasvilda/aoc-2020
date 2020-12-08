@@ -9,7 +9,7 @@
        (map (λ (e) (string-split e " ")) (string-split rule ", "))))
 
 (for-each (λ (e) (hash-set! all-bags (car e) (cadr e)))
-          (map (λ (e) (list (car e) (if (equal? (car (blobs (cadr e))) "other bags.") '() (blobs (cadr e)))))
+          (map (λ (e) (list (car e) (if (equal? (cadr e) "no other bags.") '() (blobs (cadr e)))))
                (map (λ (e) (string-split e " bags contain ")) input)))
 
 (define (has-shiny bag)
@@ -49,3 +49,15 @@
 
 ; part1
 (iter (hash-keys all-bags) 0)
+
+; part2
+(define input2 (map (λ (e) (string-split e " bags contain ")) (file->lines "inputs/test.txt")))
+
+(define all-bags2 (make-hash))
+
+(define (blobs2 rule)
+  (map (λ (e) (make-list (string->number (car e)) (string-append (cadr e) " " (caddr e))))
+       (map (λ (e) (string-split e " ")) (string-split rule ", "))))
+
+(for-each (λ (e) (hash-set! all-bags2 (car e) (cadr e)))
+          (map (λ (e) (list (car e) (if (equal? (cadr e) "no other bags.") '() (blobs2 (cadr e))))) input2))
