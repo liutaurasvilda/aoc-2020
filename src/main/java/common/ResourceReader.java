@@ -26,4 +26,9 @@ public final class ResourceReader {
         return readAsString(resourcePath)
             .stream().map(Integer::valueOf).collect(Collectors.toList());
     }
+
+    public static List<Long> readAsLong(String resourcePath) {
+        return readAsString(resourcePath)
+            .stream().map(Long::valueOf).collect(Collectors.toList());
+    }
 }
