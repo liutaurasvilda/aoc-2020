@@ -90,7 +90,6 @@
           [(= (cadr direction) 360) "W"])])]))
 
 (define (nav input direction ew ns)
-  ;(if (null? input) (write "") (write (car input))) (write direction) (write ew) (writeln ns)
   (cond [(null? input) (+ (abs (cadr ew)) (abs (cadr ns)))]
 
         [(or (and (equal? (car (car input)) "N") (equal? (car ns) "N")) (and (equal? (car (car input)) "S") (equal? (car ns) "S")))
@@ -119,3 +118,55 @@
 
 ; part1
 (nav input "E" '("E" 0) '("N" 0))
+
+(define (turn-waypoint waypoint direction)
+  (cond [(and (or (equal? (turn (first waypoint) direction) "E") (equal? (turn (first waypoint) direction) "W")) (or (equal? (first waypoint) "E") (equal? (first waypoint) "W")))
+         (list (turn (first waypoint) direction) (second waypoint) (turn (third waypoint) direction) (fourth waypoint))]
+        [(or (equal? (turn (first waypoint) direction) "E") (equal? (turn (first waypoint) direction) "W"))
+         (list (turn (third waypoint) direction) (fourth waypoint) (turn (first waypoint) direction) (second waypoint))]
+        [(and (or (equal? (turn (first waypoint) direction) "N") (equal? (turn (first waypoint) direction) "S")) (or (equal? (first waypoint) "N") (equal? (first waypoint) "S")))
+         (list (turn (first waypoint) direction) (second waypoint) (turn (third waypoint) direction) (fourth waypoint))]
+        [(or (equal? (turn (first waypoint) direction) "N") (equal? (turn (first waypoint) direction) "S"))
+         (list (turn (third waypoint) direction) (fourth waypoint) (turn (first waypoint) direction) (second waypoint))]))
+
+(define (move-waypoint waypoint direction)
+  (cond [(and (equal? (car direction) "N") (equal? (third waypoint) "N"))
+         (append (list (first waypoint) (second waypoint)) (move (list (third waypoint) (fourth waypoint)) (second direction)))]
+        [(equal? (car direction) "N")
+         (append (list (first waypoint) (second waypoint)) (move2 (list (third waypoint) (fourth waypoint)) (second direction)))]
+
+        [(and (equal? (car direction) "S") (equal? (third waypoint) "S"))
+         (append (list (first waypoint) (second waypoint)) (move (list (third waypoint) (fourth waypoint)) (second direction)))]
+        [(equal? (car direction) "S")
+         (append (list (first waypoint) (second waypoint)) (move2 (list (third waypoint) (fourth waypoint)) (second direction)))]
+
+        [(and (equal? (car direction) "E") (equal? (first waypoint) "E"))
+         (append (move (list (first waypoint) (second waypoint)) (second direction)) (list (third waypoint) (fourth waypoint)))]
+        [(equal? (car direction) "E")
+         (append (move2 (list (first waypoint) (second waypoint)) (second direction)) (list (third waypoint) (fourth waypoint)))]
+
+        [(and (equal? (car direction) "W") (equal? (first waypoint) "W"))
+         (append (move (list (first waypoint) (second waypoint)) (second direction)) (list (third waypoint) (fourth waypoint)))]
+        [(equal? (car direction) "W")
+         (append (move2 (list (first waypoint) (second waypoint)) (second direction)) (list (third waypoint) (fourth waypoint)))]))
+
+(define (move-ship waypoint ship times) 
+  (let ([ew (if (equal? (first waypoint) (first ship))
+                (move (list (first ship) (second ship)) (* (second waypoint) times))
+                (move2 (list (first ship) (second ship)) (* (second waypoint) times)))]
+        [ns (if (equal? (third waypoint) (third ship))
+                (move (list (third ship) (fourth ship)) (* (fourth waypoint) times))
+                (move2 (list (third ship) (fourth ship)) (* (fourth waypoint) times)))])
+    (append ew ns)))
+  
+(define (nav2 input waypoint ship)
+  (cond [(null? input) (+ (second ship) (fourth ship))]
+        [(or (equal? (car (car input)) "N") (equal? (car (car input)) "S") (equal? (car (car input)) "E") (equal? (car (car input)) "W"))
+         (nav2 (cdr input) (move-waypoint waypoint (car input)) ship)]
+        [(or (equal? (car (car input)) "L") (equal? (car (car input)) "R"))
+         (nav2 (cdr input) (turn-waypoint waypoint (car input)) ship)]
+        [(equal? (car (car input)) "F")
+         (nav2 (cdr input) waypoint (move-ship waypoint ship (cadr (car input))))]))
+
+; part2
+(nav2 input '("E" 10 "N" 1) '("E" 0 "N" 0))
