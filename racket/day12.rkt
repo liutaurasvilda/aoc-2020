@@ -116,3 +116,6 @@
             (nav (cdr input) direction ew (move ns (cadr (car input))))]
            [(or (equal? direction "N") (equal? direction "S"))
             (nav (cdr input) direction ew (move2 ns (cadr (car input))))])]))
+
+; part1
+(nav input "E" '("E" 0) '("N" 0))
