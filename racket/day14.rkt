@@ -48,7 +48,7 @@
            (bitmask (cdr input) (hash-set memory loc (mask-map mask val)) mask))]))
 
 ; part1
-;(bitmask input (make-immutable-hash) "")
+(bitmask input (make-immutable-hash) "")
 
 ; part2
 (define (mask-mapper-v2 m b acc)
@@ -60,21 +60,37 @@
 (check-equal? (mask-mapper-v2 (map string (string->list "000000000000000000000000000000X1001X")) (dec->bin 42) '())
               '(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 "X" 1 1 0 1 "X"))
 
-(define (get-combinations m)
-  ; TODO
-  (void))
+(define (expand-x m)
+  (let* ([l (car m)]
+         [x-pos (index-of l "X")])
+    (append 
+     (list (append (take l x-pos) (list 0) (take-right l (- (length l) (+ x-pos 1)))))
+     (list (append (take l x-pos) (list 1) (take-right l (- (length l) (+ x-pos 1)))))
+     (cdr m))))
 
-(check-equal? (get-combinations '(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 "X" 1 1 0 1 "X"))
-               '('(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 1 0)
-                 '(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 1 1)
-                 '(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 0 1 0)
-                 '(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 0 1 1)))
+
+(check-equal? (expand-x (list (list 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 "X" 1 1 0 1 "X")))
+              (list (list 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 1 "X")
+                    (list 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 0 1 "X")))
+
+    
+(define (get-combinations m acc)
+  (cond [(null? m) acc]
+        [(not (index-of (car m) "X"))
+         (get-combinations (cdr m) (append acc (list (car m))))]
+        [else (get-combinations (expand-x m) acc)]))
+
+(check-equal? (get-combinations (list (list 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 "X" 1 1 0 1 "X")) '())
+              (list (list 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 1 0)
+                    (list 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 1 1)
+                    (list 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 0 1 0)
+                    (list 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 0 1 1)))
 
 (define (mask-map-v2 mask value)
   (let* ([m (map string (string->list mask))]
         [b (dec->bin value)]
         [mapped (mask-mapper-v2 m b '())])
-    (map (λ (e) (bin->dec (b->n e)) (get-combinations mapped)))))
+    (map (λ (e) (bin->dec (b->n e))) (get-combinations (list mapped) '()))))
 
 (define (update-locs memory locs val)
   (cond [(null? locs) memory]
@@ -84,8 +100,10 @@
   (cond [(null? input) (apply + (hash-values memory))]
         [(string-contains? (car input) "mask") (bitmask-v2 (cdr input) memory (substring (car input) 7))]
         [else
-         (let* ([loc (substring (car input) 4 (string-contains (car input) "]"))]
+         (let* ([loc (string->number (substring (car input) 4 (string-contains (car input) "]")))]
                [val (string->number (substring (car input) (+ (string-contains (car input) "=") 2)))]
                [locs-to-update (mask-map-v2 mask loc)]
                [new-memory (update-locs memory locs-to-update val)])
            (bitmask-v2 (cdr input) new-memory mask))]))
+
+(bitmask-v2 input (make-immutable-hash) "")
